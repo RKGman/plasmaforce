@@ -77,9 +77,16 @@ exports.addListeners = exports.formatScore = exports.checkCollision = exports.ca
 
 var _app = __webpack_require__(6);
 
+// Some global utility functions and variables necessary for the game.
+
 var canvasHeight = exports.canvasHeight = 700;
 var canvasWidth = exports.canvasWidth = 450;
 
+/**
+ * A function to check if two objects are in a collision.
+ * @param {any} obj1
+ * @param {any} obj2
+ */
 var checkCollision = exports.checkCollision = function checkCollision(obj1, obj2) {
   if (obj1.posY + obj1.hitboxH < obj2.posY || obj1.posY > obj2.posY + obj2.hitboxH || obj1.posX + obj1.hitboxW < obj2.posX || obj1.posX > obj2.posX + obj2.hitboxW) {
     return false;
@@ -88,6 +95,10 @@ var checkCollision = exports.checkCollision = function checkCollision(obj1, obj2
   }
 };
 
+/**
+ * Function for adding padding to sores, if possible, for displaying purposes.
+ * @param {any} num
+ */
 var formatScore = exports.formatScore = function formatScore(num) {
   if (num > 999999) {
     return '999999';
@@ -106,6 +117,10 @@ var formatScore = exports.formatScore = function formatScore(num) {
   }
 };
 
+/**
+ * Function for adding listeners for controlling menus, pausing, other related functions.
+ * @param {any} game
+ */
 var addListeners = exports.addListeners = function addListeners(game) {
   document.addEventListener('keydown', function (e) {
     switch (e.keyCode) {
@@ -138,6 +153,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var _howler = __webpack_require__(7);
 
+/**
+ * Defines a constant SoundFx object for playing sound effects in the game.
+ */
 var SoundFx = {
   playerBullet: new _howler.Howl({ src: './assets/sound/bullet01.mp3', volume: 0.8 }),
   enemyBasicBullet: new _howler.Howl({ src: './assets/sound/bullet02.mp3', volume: 0.3 }),
@@ -158,73 +176,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // This is the 'master' class that every single moving object inherits from
-
-var _imageable = __webpack_require__(5);
-
-var _imageable2 = _interopRequireDefault(_imageable);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-// import {canvasHeight, canvasWidth} from './util'
-
-var defaultProps = {
-  speedX: 0,
-  speedY: 0,
-  posX: 0,
-  posY: 0
-};
-
-var MovingObject = function () {
-  function MovingObject() {
-    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-    _classCallCheck(this, MovingObject);
-
-    var newProps = Object.assign({}, defaultProps, props);
-    this.speedX = newProps.speedX;
-    this.speedY = newProps.speedY;
-    this.posX = newProps.posX;
-    this.posY = newProps.posY;
-    this.cleanup = false;
-    this.images = new _imageable2.default();
-  }
-
-  _createClass(MovingObject, [{
-    key: 'move',
-    value: function move() {
-      this.posX += this.speedX;
-      this.posY += this.speedY;
-    }
-  }, {
-    key: 'destroySelf',
-    value: function destroySelf() {
-      // mark this object for cleanup so that the game's cleanup function can delete it!
-      this.cleanup = true;
-    }
-  }]);
-
-  return MovingObject;
-}();
-
-exports.default = MovingObject;
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _moving_object = __webpack_require__(2);
+var _moving_object = __webpack_require__(4);
 
 var _moving_object2 = _interopRequireDefault(_moving_object);
 
@@ -236,10 +190,16 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-// basic shared ship code can go in here
+/**
+ * Defines the base definitions for any enemy ship, a child of MovingOject.
+ */
 var BaseShip = function (_MovingObject) {
   _inherits(BaseShip, _MovingObject);
 
+  /**
+   * Initializes a new instance of a BaseShip object.
+   * @param {any} props
+   */
   function BaseShip(props) {
     _classCallCheck(this, BaseShip);
 
@@ -249,6 +209,11 @@ var BaseShip = function (_MovingObject) {
     return _this;
   }
 
+  /**
+   * Cleans up bullets associated with this ship's instance.
+   */
+
+
   _createClass(BaseShip, [{
     key: 'deleteBullets',
     value: function deleteBullets() {
@@ -256,6 +221,11 @@ var BaseShip = function (_MovingObject) {
         return !bul.cleanup;
       });
     }
+
+    /**
+     * Reverses the direction of a ship when hitting a boundary.
+     */
+
   }, {
     key: 'antiBumpTechnology',
     value: function antiBumpTechnology() {
@@ -270,7 +240,7 @@ var BaseShip = function (_MovingObject) {
 exports.default = BaseShip;
 
 /***/ }),
-/* 4 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -285,7 +255,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _util = __webpack_require__(0);
 
-var _moving_object = __webpack_require__(2);
+var _moving_object = __webpack_require__(4);
 
 var _moving_object2 = _interopRequireDefault(_moving_object);
 
@@ -297,9 +267,16 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+/**
+ * Defines a Bullet object, a child of a MovingObject.  This ia base class to generalize specific bullet types.
+ */
 var Bullet = exports.Bullet = function (_MovingObject) {
   _inherits(Bullet, _MovingObject);
 
+  /**
+   * Initializes a new instance of the Bullet object.
+   * @param {any} props
+   */
   function Bullet(props) {
     _classCallCheck(this, Bullet);
 
@@ -308,6 +285,11 @@ var Bullet = exports.Bullet = function (_MovingObject) {
     _this.sprite = _this.images.beams;
     return _this;
   }
+
+  /**
+   * Describes how the bullet moves.
+   */
+
 
   _createClass(Bullet, [{
     key: 'move',
@@ -318,10 +300,15 @@ var Bullet = exports.Bullet = function (_MovingObject) {
         this.destroySelf();
       }
     }
+
+    /**
+     * Sets the flag to indicate that the bullet should be removed from the game.
+     */
+
   }, {
     key: 'destroySelf',
     value: function destroySelf() {
-      // mark this bullet for cleanup so that the game's cleanup function can delete it!
+      // Mark this bullet for cleanup so that the game's cleanup function can delete it!
       this.cleanup = true;
     }
   }]);
@@ -329,9 +316,18 @@ var Bullet = exports.Bullet = function (_MovingObject) {
   return Bullet;
 }(_moving_object2.default);
 
+/**
+ * Describes the playey's ship bullet type, a child of the Bullet object.
+ */
+
+
 var PlayerBulletBasic = exports.PlayerBulletBasic = function (_Bullet) {
   _inherits(PlayerBulletBasic, _Bullet);
 
+  /**
+   * Initializes a new instance of the PlayerBulletBasic object.
+   * @param {any} props
+   */
   function PlayerBulletBasic(props) {
     _classCallCheck(this, PlayerBulletBasic);
 
@@ -342,18 +338,31 @@ var PlayerBulletBasic = exports.PlayerBulletBasic = function (_Bullet) {
     return _this2;
   }
 
+  /**
+   * Describes how the PlayerBulletBasic object moves. 
+   */
+
+
   _createClass(PlayerBulletBasic, [{
     key: 'move',
     value: function move() {
-      // give bullets a slight spread
+      // Give bullets a slight spread...
       if (this.posY % 3 === 0 && this.speedX !== 0) {
         this.posX += this.speedX;
       }
+
       this.posY += this.speedY;
+
       if (this.posX < -20 || this.posX > _util.canvasWidth || this.posY < 0 || this.posY > _util.canvasHeight) {
         this.destroySelf();
       }
     }
+
+    /**
+     * Renders the player bullet sprite onto the context object.
+     * @param {any} ctx
+     */
+
   }, {
     key: 'render',
     value: function render(ctx) {
@@ -365,9 +374,18 @@ var PlayerBulletBasic = exports.PlayerBulletBasic = function (_Bullet) {
   return PlayerBulletBasic;
 }(Bullet);
 
+/**
+ * Defines a basic enemy bullet, a child of the Bullet object.
+ */
+
+
 var BasicEnemyBullet = exports.BasicEnemyBullet = function (_Bullet2) {
   _inherits(BasicEnemyBullet, _Bullet2);
 
+  /**
+   * Initializes a new instance of the BasicEnemyBullet object.
+   * @param {any} props
+   */
   function BasicEnemyBullet(props) {
     _classCallCheck(this, BasicEnemyBullet);
 
@@ -378,16 +396,28 @@ var BasicEnemyBullet = exports.BasicEnemyBullet = function (_Bullet2) {
     return _this3;
   }
 
+  /**
+   * Describes how the BasicEnemyBullet object moves.
+   */
+
+
   _createClass(BasicEnemyBullet, [{
     key: 'move',
     value: function move() {
-      // give bullets a slight spread
+      // Give bullets a slight spread
       this.posX += this.speedX;
       this.posY += this.speedY;
+
       if (this.posX < -20 || this.posX > _util.canvasWidth || this.posY < 0 || this.posY > _util.canvasHeight) {
         this.destroySelf();
       }
     }
+
+    /**
+     * Renders the enemy bullet onto the context object.
+     * @param {any} ctx
+     */
+
   }, {
     key: 'render',
     value: function render(ctx) {
@@ -398,6 +428,84 @@ var BasicEnemyBullet = exports.BasicEnemyBullet = function (_Bullet2) {
 
   return BasicEnemyBullet;
 }(Bullet);
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _imageable = __webpack_require__(5);
+
+var _imageable2 = _interopRequireDefault(_imageable);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var defaultProps = {
+  speedX: 0,
+  speedY: 0,
+  posX: 0,
+  posY: 0
+
+  /**
+   * The is the 'master' class that every moving object in the game will inherit from.
+   */
+};
+var MovingObject = function () {
+  /**
+   * Initializes a new instance of the MovingObject class.
+   * @param {any} props
+   */
+  function MovingObject() {
+    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+    _classCallCheck(this, MovingObject);
+
+    var newProps = Object.assign({}, defaultProps, props);
+    this.speedX = newProps.speedX;
+    this.speedY = newProps.speedY;
+    this.posX = newProps.posX;
+    this.posY = newProps.posY;
+    this.cleanup = false;
+    this.images = new _imageable2.default();
+  }
+
+  /**
+   * Defines how the object moves. 
+   */
+
+
+  _createClass(MovingObject, [{
+    key: 'move',
+    value: function move() {
+      this.posX += this.speedX;
+      this.posY += this.speedY;
+    }
+
+    /**
+     * Marks the moving object for cleanup so that the game's cleanup function can delete it.
+     */
+
+  }, {
+    key: 'destroySelf',
+    value: function destroySelf() {
+      this.cleanup = true;
+    }
+  }]);
+
+  return MovingObject;
+}();
+
+exports.default = MovingObject;
 
 /***/ }),
 /* 5 */
@@ -412,17 +520,24 @@ Object.defineProperty(exports, "__esModule", {
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-/* global Image  */
-
+// Global image instance
 var instance = null;
 
-var ImageableSingleton = function ImageableSingleton() {
+/**
+ * A single design for creating an object to reference assets throughout the game.
+ */
+
+var ImageableSingleton =
+/**
+ * Initializes a new single sintance of the ImageableSingleton object.
+ */
+function ImageableSingleton() {
       _classCallCheck(this, ImageableSingleton);
 
       if (!instance) {
             instance = this;
 
-            // scrolling background
+            // Scrolling background
             this.backgroundImg = new Image();
             this.backgroundImg.src = './assets/background1.jpg';
 
@@ -478,27 +593,32 @@ var _howler = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/* global Howler */
-
 var settings = {
   muted: true,
   muteBtn: document.querySelector('#mute-control')
 };
 
 Howler.mute(settings.muted);
+
 var bgMusic = new _howler.Howl({
   autoplay: true,
   loop: true,
   src: './assets/music/bensound-scifi.mp3'
 });
+
 bgMusic.play();
 
+/**
+ * Toggles the mute setting.
+ * @param {any} bool
+ */
 var toggleMute = exports.toggleMute = function toggleMute() {
   var bool = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : settings.muted;
 
   Howler.mute(bool);
 };
 
+// Add event handler for muting.
 settings.muteBtn.addEventListener('click', function () {
   settings.muted = !settings.muted;
   toggleMute();
@@ -3453,15 +3573,15 @@ var _sound_fx = __webpack_require__(1);
 
 var _sound_fx2 = _interopRequireDefault(_sound_fx);
 
-var _explosion = __webpack_require__(17);
+var _explosion = __webpack_require__(18);
 
 var _explosion2 = _interopRequireDefault(_explosion);
 
-var _ui = __webpack_require__(18);
+var _ui = __webpack_require__(19);
 
 var _ui2 = _interopRequireDefault(_ui);
 
-var _player = __webpack_require__(19);
+var _player = __webpack_require__(20);
 
 var _player2 = _interopRequireDefault(_player);
 
@@ -3471,17 +3591,21 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var stop = false;
-var frameCount = 0;
-var fps;
 var fpsInterval;
 var startTime;
 var now;
 var then;
 var elapsed;
 
+/**
+ * Defines the functions necessary for running game operations and defining the main rendering loop.
+ */
+
 var Game = function () {
-  function Game(player) {
+  /**
+   * Instantiates a new Game object.
+   */
+  function Game() {
     _classCallCheck(this, Game);
 
     this.bgCanvas = document.querySelector('#background-canvas');
@@ -3504,6 +3628,12 @@ var Game = function () {
     Util.addListeners(this);
   }
 
+  /**
+   * Initial calls to begin the main render loop and spawn ships.
+   * @param {any} fps
+   */
+
+
   _createClass(Game, [{
     key: 'run',
     value: function run(fps) {
@@ -3513,11 +3643,21 @@ var Game = function () {
       this.render();
       _ship_factory2.default.spawnEnemies();
     }
+
+    /**
+     * Toggles the pause flag.
+     */
+
   }, {
     key: 'pauseGame',
     value: function pauseGame() {
       this.pause = !this.pause;
     }
+
+    /**
+     * Resets values to begin a new game and begin respawning ships.
+     */
+
   }, {
     key: 'resetGame',
     value: function resetGame() {
@@ -3529,6 +3669,11 @@ var Game = function () {
       this.showGameOverScreen = false;
       _ship_factory2.default.spawnEnemies();
     }
+
+    /**
+     * Defines logic for cleaning up destroyed or exhausted objects.  Calls next wave of enemies if none remain.
+     */
+
   }, {
     key: 'cleanup',
     value: function cleanup() {
@@ -3538,10 +3683,16 @@ var Game = function () {
       this.explosions = this.explosions.filter(function (exp) {
         return !exp.cleanup;
       });
+
       if (this.enemies.length === 0) {
         _ship_factory2.default.spawnEnemies();
       }
     }
+
+    /**
+     * Removes bullets marked for clean up and reassigns the bullet objects for each ship in the game.
+     */
+
   }, {
     key: 'deleteBullets',
     value: function deleteBullets() {
@@ -3554,6 +3705,11 @@ var Game = function () {
         ship.bullets = _this.bullets;
       });
     }
+
+    /**
+     * Handles the rendering, damage, and scoring for each player bullet in the game.
+     */
+
   }, {
     key: 'handlePlayerAction',
     value: function handlePlayerAction() {
@@ -3570,11 +3726,19 @@ var Game = function () {
         });
       });
     }
+
+    /**
+     * Handles the calling the explosion sequence, health point reduction, and checking if the game is over (player ship is destroyed).
+     * @param {any} bullet
+     * @param {any} ship
+     */
+
   }, {
     key: 'handleBulletHit',
     value: function handleBulletHit(bullet, ship) {
       _sound_fx2.default.hit.play();
       this.explosions.push(new _explosion2.default([bullet.posX, ship.constructor.name === 'Player' ? bullet.posY : bullet.posY - 20]));
+
       bullet.destroySelf();
       this.deleteBullets();
       ship.hp--;
@@ -3588,24 +3752,30 @@ var Game = function () {
         }
       }
     }
+
+    /**
+     * Clears the game canvas.
+     */
+
   }, {
     key: 'clearGameCanvas',
     value: function clearGameCanvas() {
       this.canvasContext.clearRect(0, 0, Util.canvasWidth, Util.canvasHeight);
     }
+
+    /**
+     * The main render loop for the game responsible for each ship and its bullets.
+     */
+
   }, {
     key: 'render',
     value: function render() {
-      // RENDER LOOP: loop through and render each ship, and then render
-      // each ship's bullets
-
       // Save current time
       now = Date.now();
 
       // If enough time has passed, draw the next frame
       elapsed = now - then;
       if (elapsed > fpsInterval) {
-
         // Get ready for next frame by setting then=now
         then = now - elapsed % fpsInterval;
 
@@ -3619,51 +3789,74 @@ var Game = function () {
           }
         }
 
-        // Render next frame
+        // Render next frame (recursive call)
         window.requestAnimationFrame(this.render.bind(this));
       } else {
-        // Try again later
+        // Try again later (recursive call)
         window.requestAnimationFrame(this.render.bind(this));
       }
     }
+
+    /**
+     * Renders each ship, then renders each bullet.  Also handles rendering when in a game over state. 
+     */
+
   }, {
     key: 'renderGame',
     value: function renderGame() {
       var _this3 = this;
 
+      // Render each ship.
       this.enemies.forEach(function (ship) {
         ship.render(_this3.canvasContext);
+
         if (Util.checkCollision(ship, _this3.player) && !_this3.player.iframe && !_this3.showGameOverScreen) {
           _sound_fx2.default.explosion.play();
           _this3.explosions.push(new _explosion2.default([_this3.player.posX + 5, _this3.player.posY - 10], 64));
           _this3.player.iframe = 10;
           _this3.player.hp--;
+
           if (_this3.player.hp <= 0) {
             _this3.showGameOverScreen = true;
           }
         }
       });
+
+      // Render each bullet.
       this.bullets.forEach(function (bullet) {
         bullet.render(_this3.canvasContext);
+
         if (Util.checkCollision(bullet, _this3.player)) {
           if (!_this3.player.iframe && !_this3.showGameOverScreen) {
             _this3.handleBulletHit(bullet, _this3.player);
-            // give player 30 invincible frames after each bullet hit
+            // Give player 30 invincible frames after each bullet hit
             _this3.player.iframe = 30;
           }
         }
       });
+
+      // Check if game over and render if necessary
       if (this.showGameOverScreen) {
         this.renderGameOverScreen(this.canvasContext);
       } else {
+        // Otherwise, continue to handle player actions.
         this.player.render(this.canvasContext);
         this.handlePlayerAction();
       }
+
+      // Render explosions
       this.explosions.forEach(function (explosion) {
         return explosion.render(_this3.canvasContext);
       });
+      // Render the user interface context.
       this.ui.render(this.UIContext);
     }
+
+    /**
+     * Render the starting title screen
+     * @param {any} ctx
+     */
+
   }, {
     key: 'renderTitleScreen',
     value: function renderTitleScreen(ctx) {
@@ -3674,6 +3867,12 @@ var Game = function () {
       ctx.font = '30px arcadeclassicregular';
       ctx.fillText('press enter to start', 70, 350);
     }
+
+    /**
+     * Render the game over screen.
+     * @param {any} ctx
+     */
+
   }, {
     key: 'renderGameOverScreen',
     value: function renderGameOverScreen(ctx) {
@@ -3704,7 +3903,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _moving_object = __webpack_require__(2);
+var _moving_object = __webpack_require__(4);
 
 var _moving_object2 = _interopRequireDefault(_moving_object);
 
@@ -3722,6 +3921,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 // import {canvasHeight, canvasWidth} from './util'
 
+/**
+ * Defines the Background class for the moving background in the game; this is a child of MovingObject. 
+ */
 var Background = function (_MovingObject) {
   _inherits(Background, _MovingObject);
 
@@ -3735,6 +3937,12 @@ var Background = function (_MovingObject) {
     _this.tick = 0;
     return _this;
   }
+
+  /**
+   * Renders the background image onto the context object.
+   * @param {any} ctx
+   */
+
 
   _createClass(Background, [{
     key: 'render',
@@ -3772,16 +3980,18 @@ var Enemies = _interopRequireWildcard(_enemy_ships);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-// Suicider - small enemy ship; no bullet logic
-// GruntShip - basic enemy, fires triangle spread bullets
-
+/**
+ * Defines a constant ShipFactory object with functions for generating enemy ships.
+ */
 var ShipFactory = {
+  // Initialization function
   init: function init(game) {
     this.game = game;
     this.scores = game.scores;
     this.waves = [this.addGrunt, this.addSaucer, this.addTwoSaucers, this.addOculus];
   },
 
+  // Function to spawn enemies.  Each wave is determined by the score.
   spawnEnemies: function spawnEnemies() {
     if (this.scores.score < 45) {
       this.addGrunt();
@@ -3816,22 +4026,28 @@ var ShipFactory = {
     }
   },
 
+  // Adds a Grunt ship to the game.
   addGrunt: function addGrunt() {
     this.game.enemies.push(new Enemies.GruntShip({ bullets: this.game.bullets }));
   },
+  // Adds a Saucer ship to the game
   addSaucer: function addSaucer() {
     this.game.enemies.push(new Enemies.SaucerShip({ bullets: this.game.bullets }));
   },
+  // Adds a Suicider ship to the game.
   addSuicider: function addSuicider() {
     this.game.enemies.push(new Enemies.Suicider({ bullets: this.game.bullets }));
   },
+  // Adds the two types of Saucer ships to the game.
   addTwoSaucers: function addTwoSaucers() {
     this.game.enemies.push(new Enemies.SaucerShip({ bullets: this.game.bullets, posX: 20 }));
-    this.game.enemies.push(new Enemies.SaucerShip({ bullets: this.game.bullets, posX: 320, posY: -400 }));
+    this.game.enemies.push(new Enemies.SaucerShipV2({ bullets: this.game.bullets, posX: 320, posY: -400 }));
   },
+  // Adds an Oculus ship to the game.
   addOculus: function addOculus() {
     this.game.enemies.push(new Enemies.OculusShip({ bullets: this.game.bullets }));
   },
+  // Generates a random wave of enemies.
   randomWave: function randomWave() {
     this.waves[Math.floor(Math.random() * this.waves.length)].call(ShipFactory);
     this.waves[Math.floor(Math.random() * this.waves.length)].call(ShipFactory);
@@ -3850,7 +4066,7 @@ exports.default = ShipFactory;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.OculusShip = exports.SaucerShip = exports.GruntShip = exports.Suicider = undefined;
+exports.OculusShip = exports.SaucerShipV2 = exports.SaucerShip = exports.GruntShip = exports.Suicider = undefined;
 
 var _suicider = __webpack_require__(12);
 
@@ -3864,7 +4080,11 @@ var _saucer = __webpack_require__(15);
 
 var _saucer2 = _interopRequireDefault(_saucer);
 
-var _oculus = __webpack_require__(16);
+var _saucer_major = __webpack_require__(16);
+
+var _saucer_major2 = _interopRequireDefault(_saucer_major);
+
+var _oculus = __webpack_require__(17);
 
 var _oculus2 = _interopRequireDefault(_oculus);
 
@@ -3873,6 +4093,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.Suicider = _suicider2.default;
 exports.GruntShip = _grunt2.default;
 exports.SaucerShip = _saucer2.default;
+exports.SaucerShipV2 = _saucer_major2.default;
 exports.OculusShip = _oculus2.default;
 
 /***/ }),
@@ -3888,7 +4109,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _base = __webpack_require__(3);
+var _base = __webpack_require__(2);
 
 var _base2 = _interopRequireDefault(_base);
 
@@ -3903,7 +4124,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 /**
- * The defines the enemy ship that "just suicides into the enemy". * 
+ * This defines the enemy ship that "just suicides into the enemy". * 
  */
 var Suicider = function (_BaseShip) {
   _inherits(Suicider, _BaseShip);
@@ -3991,11 +4212,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _base = __webpack_require__(3);
+var _base = __webpack_require__(2);
 
 var _base2 = _interopRequireDefault(_base);
 
-var _bullet = __webpack_require__(4);
+var _bullet = __webpack_require__(3);
 
 var _util = __webpack_require__(0);
 
@@ -4013,10 +4234,16 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-// lvl1, weakest enemy ship
+/**
+ * This defines the enemy ship that is the "weakest enemy ship" (pre-suicider?) *
+ */
 var GruntShip = function (_BaseShip) {
   _inherits(GruntShip, _BaseShip);
 
+  /**
+   * Initializes a new instance of the GruntShip object.
+   * @param {any} props
+   */
   function GruntShip(props) {
     _classCallCheck(this, GruntShip);
 
@@ -4040,6 +4267,11 @@ var GruntShip = function (_BaseShip) {
     return _this;
   }
 
+  /**
+   * Specifies logic for how the Grunt ship moves.
+   */
+
+
   _createClass(GruntShip, [{
     key: 'move',
     value: function move() {
@@ -4056,10 +4288,17 @@ var GruntShip = function (_BaseShip) {
         }
       }
     }
+
+    /**
+     * Defines the logic for specifying bullet vector data and pushing new bullet objects into the bullet queue.
+     * This function also triggers the bullet sound effect.
+     */
+
   }, {
     key: 'fireBullet',
     value: function fireBullet() {
       _sound_fx2.default.enemyBasicBullet.play();
+
       var posObj = {
         posX: this.posX + Math.floor(this.hitboxW / 2) - 10,
         posY: this.posY + this.hitboxH - 20
@@ -4069,18 +4308,30 @@ var GruntShip = function (_BaseShip) {
       var bulletData3 = Object.assign({ speedX: 3, speedY: 4 }, posObj);
       this.bullets.push(new _bullet.BasicEnemyBullet(bulletData), new _bullet.BasicEnemyBullet(bulletData2), new _bullet.BasicEnemyBullet(bulletData3));
     }
+
+    /**
+     * Calls function to render the GruntShip object image and its hitbox at a particular location.
+     * @param {any} ctx
+     */
+
   }, {
     key: 'render',
     value: function render(ctx) {
       this.move();
       ctx.drawImage.apply(ctx, _toConsumableArray(this.getSprite()).concat([this.posX, this.posY, this.hitboxW, this.hitboxH]));
     }
+
+    /**
+     * Returns the sprite for a specific tick count
+     */
+
   }, {
     key: 'getSprite',
     value: function getSprite() {
       if (this.tickCount >= 80) {
         this.tickCount = 0;
       }
+
       var result = this.sprites[Math.floor(this.tickCount / 10)];
       this.tickCount++;
       return result;
@@ -4132,11 +4383,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _base = __webpack_require__(3);
+var _base = __webpack_require__(2);
 
 var _base2 = _interopRequireDefault(_base);
 
-var _bullet = __webpack_require__(4);
+var _bullet = __webpack_require__(3);
 
 var _util = __webpack_require__(0);
 
@@ -4154,10 +4405,16 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-// lvl2, fire circular spread
+/**
+ * This defines the enemy ship that is the "lvl2," with a "fire circular spread" 
+ */
 var SaucerShip = function (_BaseShip) {
   _inherits(SaucerShip, _BaseShip);
 
+  /**
+   * Initializes a new instance of the SaucerShip object.
+   * @param {any} props
+   */
   function SaucerShip(props) {
     _classCallCheck(this, SaucerShip);
 
@@ -4181,6 +4438,11 @@ var SaucerShip = function (_BaseShip) {
     return _this;
   }
 
+  /**
+   * Specifies logic for how the Suacer ship moves.
+   */
+
+
   _createClass(SaucerShip, [{
     key: 'move',
     value: function move() {
@@ -4197,12 +4459,19 @@ var SaucerShip = function (_BaseShip) {
         this.antiBumpTechnology();
       }
     }
+
+    /**
+     * Defines the logic for using bullet vector data to push new bullet objects into the bullet queue.
+     * This function also triggers the bullet sound effect.
+     */
+
   }, {
     key: 'fireBullet',
     value: function fireBullet() {
       var _this2 = this;
 
       _sound_fx2.default.enemyBasicBullet.play();
+
       var posObj = {
         posX: this.posX + Math.floor(this.hitboxW / 2) - 10,
         posY: this.posY + Math.floor(this.hitboxH / 2) - 10
@@ -4213,18 +4482,30 @@ var SaucerShip = function (_BaseShip) {
         _this2.bullets.push(new _bullet.BasicEnemyBullet(bulletData));
       });
     }
+
+    /**
+     * Calls function to render the SuacerShip object image and its hitbox at a particular location.
+     * @param {any} ctx
+     */
+
   }, {
     key: 'render',
     value: function render(ctx) {
       this.move();
       ctx.drawImage.apply(ctx, _toConsumableArray(this.getSprite()).concat([this.posX, this.posY, this.hitboxW, this.hitboxH]));
     }
+
+    /**
+     * Returns the sprite for a specific tick count
+     */
+
   }, {
     key: 'getSprite',
     value: function getSprite() {
       if (this.tickCount >= 140) {
         this.tickCount = 0;
       }
+
       var result = this.sprites[Math.floor(this.tickCount / 10)];
       this.tickCount++;
       return result;
@@ -4249,11 +4530,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _base = __webpack_require__(3);
+var _base = __webpack_require__(2);
 
 var _base2 = _interopRequireDefault(_base);
 
-var _bullet = __webpack_require__(4);
+var _bullet = __webpack_require__(3);
 
 var _util = __webpack_require__(0);
 
@@ -4271,10 +4552,162 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-// lvl2, fire circular spread
+/**
+ * This defines the enemy ship that is "lvl3, like saucer," but "fires 2 round bursts"
+ */
+var SaucerShipV2 = function (_BaseShip) {
+  _inherits(SaucerShipV2, _BaseShip);
+
+  /**
+   * Initializes a new instance of the SaucerShipV2 object.
+   * @param {any} props
+   */
+  function SaucerShipV2(props) {
+    _classCallCheck(this, SaucerShipV2);
+
+    props = Object.assign({ speedY: 3, posY: -100, posX: Math.floor(_util.canvasWidth / 2 - 60) }, props);
+
+    var _this = _possibleConstructorReturn(this, (SaucerShipV2.__proto__ || Object.getPrototypeOf(SaucerShipV2)).call(this, props));
+
+    _this.hp = 45;
+    _this.sprite = _this.images.enemySaucerGreen;
+    _this.tickCount = 0;
+    _this.hitboxW = 96;
+    _this.hitboxH = 90;
+    _this.sprites = [];
+    for (var i = 0; i <= 6; i++) {
+      _this.sprites.push([_this.sprite, i * 96, 0, 96, 90]);
+    }
+    for (var _i = 6; _i >= 0; _i--) {
+      _this.sprites.push([_this.sprite, _i * 96, 0, 96, 90]);
+    }
+    _this.BULLET_VECTORS = [[0, 5], [0, -5], [5, 0], [-5, 0], [-2, 4], [2, 4], [-2, -4], [2, -4], [4, 2], [4, -2], [-4, -2], [-4, 2]];
+    return _this;
+  }
+
+  /**
+   * Specifies logic for how the Suacer ship moves.
+   */
+
+
+  _createClass(SaucerShipV2, [{
+    key: 'move',
+    value: function move() {
+      if (this.tickCount === 70) {
+        this.fireBullet();
+      }
+      if (this.posY < 0) {
+        this.posY += 2;
+      } else if (this.tickCount > 65 && this.tickCount < 100) {
+        return false;
+      } else if (this.posY + this.speedY >= 0 && this.posY + this.speedY <= _util.canvasHeight - this.hitboxH) {
+        this.posY += this.speedY;
+      } else {
+        this.antiBumpTechnology();
+      }
+    }
+
+    /**
+     * Defines the logic for using bullet vector data to push new bullet objects into the bullet queue.
+     * This function also triggers the bullet sound effect.
+     */
+
+  }, {
+    key: 'fireBullet',
+    value: function fireBullet() {
+      var _this2 = this;
+
+      _sound_fx2.default.enemyBasicBullet.play();
+
+      var posObj = {
+        posX: this.posX + Math.floor(this.hitboxW / 2) - 10,
+        posY: this.posY + Math.floor(this.hitboxH / 2) - 10
+      };
+
+      this.BULLET_VECTORS.forEach(function (vector) {
+        var bulletData = Object.assign({ speedX: vector[0], speedY: vector[1] }, posObj);
+        _this2.bullets.push(new _bullet.BasicEnemyBullet(bulletData));
+      });
+    }
+
+    /**
+     * Calls function to render the SuacerShip object image and its hitbox at a particular location.
+     * @param {any} ctx
+     */
+
+  }, {
+    key: 'render',
+    value: function render(ctx) {
+      this.move();
+      ctx.drawImage.apply(ctx, _toConsumableArray(this.getSprite()).concat([this.posX, this.posY, this.hitboxW, this.hitboxH]));
+    }
+
+    /**
+     * Returns the sprite for a specific tick count
+     */
+
+  }, {
+    key: 'getSprite',
+    value: function getSprite() {
+      if (this.tickCount >= 140) {
+        this.tickCount = 0;
+      }
+      var result = this.sprites[Math.floor(this.tickCount / 10)];
+      this.tickCount++;
+      return result;
+    }
+  }]);
+
+  return SaucerShipV2;
+}(_base2.default);
+
+exports.default = SaucerShipV2;
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _base = __webpack_require__(2);
+
+var _base2 = _interopRequireDefault(_base);
+
+var _bullet = __webpack_require__(3);
+
+var _util = __webpack_require__(0);
+
+var _sound_fx = __webpack_require__(1);
+
+var _sound_fx2 = _interopRequireDefault(_sound_fx);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/**
+ * This defines the level 4 enemy ship.
+ */
 var OculusShip = function (_BaseShip) {
   _inherits(OculusShip, _BaseShip);
 
+  /**
+   * Initializes a new instance of the OculusShip object.
+   * @param {any} props
+   */
   function OculusShip(props) {
     _classCallCheck(this, OculusShip);
 
@@ -4298,6 +4731,11 @@ var OculusShip = function (_BaseShip) {
     return _this;
   }
 
+  /**
+   * Specifies logic for how the Oculus ship moves.
+   */
+
+
   _createClass(OculusShip, [{
     key: 'move',
     value: function move() {
@@ -4320,6 +4758,12 @@ var OculusShip = function (_BaseShip) {
         }
       }
     }
+
+    /**
+     * Defines the logic for using bullet vector data to push new bullet objects into the bullet queue.
+     * This function also triggers the bullet sound effect.
+     */
+
   }, {
     key: 'fireBullet',
     value: function fireBullet() {
@@ -4332,12 +4776,23 @@ var OculusShip = function (_BaseShip) {
       var bulletData = Object.assign({ speedX: vector[0], speedY: vector[1] }, posObj);
       this.bullets.push(new _bullet.BasicEnemyBullet(bulletData));
     }
+
+    /**
+     * Calls function to render the SuacerShip object image and its hitbox at a particular location.
+     * @param {any} ctx
+     */
+
   }, {
     key: 'render',
     value: function render(ctx) {
       this.move();
       ctx.drawImage.apply(ctx, _toConsumableArray(this.getSprite()).concat([this.posX, this.posY, this.hitboxW, this.hitboxH]));
     }
+
+    /**
+     * Returns the sprite for a specific tick count
+     */
+
   }, {
     key: 'getSprite',
     value: function getSprite() {
@@ -4356,7 +4811,7 @@ var OculusShip = function (_BaseShip) {
 exports.default = OculusShip;
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4378,7 +4833,15 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+/**
+ * Defines the functions necessary to create an explosion for damages on ships.
+ */
 var Explosion = function () {
+  /**
+   * Initializes a new instance of the Explosion class.
+   * @param {any} pos
+   * @param {any} size
+   */
   function Explosion(pos) {
     var size = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 30;
 
@@ -4393,8 +4856,15 @@ var Explosion = function () {
         this.sprites.push([this.spriteSheet, j, i, 64, 64, pos[0], pos[1], size, size]);
       }
     }
+
     this.sprites = this.sprites.slice(0).reverse().concat(this.sprites);
   }
+
+  /**
+   * Renders the explosion onto the context object.
+   * @param {any} ctx
+   */
+
 
   _createClass(Explosion, [{
     key: 'render',
@@ -4414,7 +4884,7 @@ var Explosion = function () {
 exports.default = Explosion;
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4434,7 +4904,14 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+/**
+ * Defines the UI class for interfacing game data and ship information to the user.
+ */
 var UI = function () {
+  /**
+   * Initializes a new instance of the UI object.
+   * @param {any} game
+   */
   function UI(game) {
     _classCallCheck(this, UI);
 
@@ -4442,6 +4919,12 @@ var UI = function () {
     this.scores = game.scores;
     this.tick = 0;
   }
+
+  /**
+   * Renders the relavent information for the user interface to the context object.
+   * @param {any} ctx
+   */
+
 
   _createClass(UI, [{
     key: 'render',
@@ -4458,12 +4941,15 @@ var UI = function () {
         ctx.strokeRect(45, 14, 81, 18);
         ctx.fillStyle = 'red';
         ctx.fillRect(45, 15, this.game.player.hp * 8, 16);
+
         if (this.scores.score > this.scores.hiScore) {
           window.localStorage.hiScore = this.scores.score;
           this.scores.hiScore = this.scores.score;
         }
+
         this.tick > 300 && (this.tick = 0);
       }
+
       this.tick++;
     }
   }]);
@@ -4474,7 +4960,7 @@ var UI = function () {
 exports.default = UI;
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4488,9 +4974,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _util = __webpack_require__(0);
 
-var _bullet = __webpack_require__(4);
+var _bullet = __webpack_require__(3);
 
-var _moving_object = __webpack_require__(2);
+var _moving_object = __webpack_require__(4);
 
 var _moving_object2 = _interopRequireDefault(_moving_object);
 
@@ -4508,9 +4994,15 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+/**
+ * Defines the Player object containing the ship functionality and its actions inheriting from MovingObject.
+ */
 var Player = function (_MovingObject) {
   _inherits(Player, _MovingObject);
 
+  /**
+   * Initializes a new instance of the Player class.  
+   */
   function Player() {
     _classCallCheck(this, Player);
 
@@ -4528,6 +5020,7 @@ var Player = function (_MovingObject) {
       moveDown: false,
       fireBullet: false
     };
+
     _this.bulletFx = _sound_fx2.default.playerBullet;
     _this.topSpeed = 5;
     _this.hp = 10;
@@ -4540,6 +5033,11 @@ var Player = function (_MovingObject) {
     return _this;
   }
 
+  /**
+   * Function for firing the player ship's bullet. 
+   */
+
+
   _createClass(Player, [{
     key: 'fireBullet',
     value: function fireBullet() {
@@ -4549,11 +5047,17 @@ var Player = function (_MovingObject) {
         posX: this.posX + Math.floor(this.hitboxW / 2) - 10,
         posY: this.posY - 20
       };
+
       var newBullet = new _bullet.PlayerBulletBasic(bulletData);
       this.playerBullets.push(newBullet);
       this.bulletCooldown = 6;
       this.bulletFx.play();
     }
+
+    /**
+     * Calculates the inertia for the player ship based on the action inputs.
+     */
+
   }, {
     key: 'calculateInertia',
     value: function calculateInertia() {
@@ -4586,11 +5090,17 @@ var Player = function (_MovingObject) {
         this.speedY--;
       }
     }
+
+    /**
+     * Defines how to player ship moves. Also checks if there is a fireBullet action to execute.
+     */
+
   }, {
     key: 'move',
     value: function move() {
-      // if iframe is 0, it's falsey!
+      // If iframe is 0, no invincibility. 
       this.iframe && this.iframe--;
+
       if (this.actions.fireBullet) {
         if (this.bulletCooldown === 0) {
           this.fireBullet();
@@ -4605,6 +5115,11 @@ var Player = function (_MovingObject) {
         this.posY += this.speedY;
       }
     }
+
+    /**
+     * Cleans up exhausted bullets generated by the player ship.
+     */
+
   }, {
     key: 'deleteBullets',
     value: function deleteBullets() {
@@ -4612,23 +5127,37 @@ var Player = function (_MovingObject) {
         return !bul.cleanup;
       });
     }
+
+    /**
+     * Calls function to clean up bullets, calculate inertia, move the player ship, and redraw the playship on the context object.  
+     * @param {any} ctx
+     */
+
   }, {
     key: 'render',
     value: function render(ctx) {
       if (this.bulletCooldown === 0) {
         this.deleteBullets();
       }
+
       this.calculateInertia();
       this.move();
       ctx.drawImage.apply(ctx, _toConsumableArray(this.getSprite()));
     }
+
+    /**
+     * Gets the necessary sprite based on the ship speedX (driven by inputs)
+     */
+
   }, {
     key: 'getSprite',
     value: function getSprite() {
       var frame = [0, 1][Math.floor(Math.random() * 2)];
 
       var normalSprite = [[this.images.playerShip, 0, 0, 32, 44, this.posX, this.posY, this.hitboxW, this.hitboxH], [this.images.playerShip, 32, 0, 32, 44, this.posX, this.posY, this.hitboxW, this.hitboxH]];
+
       var leftSprite = [[this.images.playerShipL, 0, 0, 26, 44, this.posX, this.posY, this.hitboxW, this.hitboxH], [this.images.playerShipL, 26, 0, 26, 44, this.posX, this.posY, this.hitboxW, this.hitboxH]];
+
       var rightSprite = [[this.images.playerShipR, 0, 0, 26, 44, this.posX, this.posY, this.hitboxW, this.hitboxH], [this.images.playerShipR, 26, 0, 26, 44, this.posX, this.posY, this.hitboxW, this.hitboxH]];
 
       if (this.speedX === 0) {
@@ -4640,13 +5169,18 @@ var Player = function (_MovingObject) {
       }
     }
 
-    // KEYCODES: 37: left, 38: up, 39: right, 40: down, 32: space
+    /**
+     * Defines the controller for detecting player inputs for controlling the ship.  
+     * This will set a specific action to true, given the keycode to switch cases.
+     */
 
   }, {
     key: 'playerController',
     value: function playerController() {
       var _this2 = this;
 
+      // KEYCODES: 37: left, 38: up, 39: right, 40: down, 32: space
+      // Specify flags set on keydown event.
       document.addEventListener('keydown', function (e) {
         switch (e.keyCode) {
           case 65:
@@ -4672,6 +5206,8 @@ var Player = function (_MovingObject) {
             break;
         }
       });
+
+      // Specify flags set for keyup events
       document.addEventListener('keyup', function (e) {
         switch (e.keyCode) {
           case 65:
