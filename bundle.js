@@ -73,7 +73,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.addListeners = exports.formatScore = exports.checkCollision = exports.canvasWidth = exports.canvasHeight = undefined;
+exports.addListeners = exports.formatScore = exports.checkCollision = exports.menuDirections = exports.difficulty = exports.menuSelections = exports.menuStates = exports.canvasWidth = exports.canvasHeight = undefined;
 
 var _app = __webpack_require__(6);
 
@@ -82,12 +82,34 @@ var _app = __webpack_require__(6);
 var canvasHeight = exports.canvasHeight = 700;
 var canvasWidth = exports.canvasWidth = 450;
 
-/**
- * A function to check if two objects are in a collision.
- * @param {any} obj1
- * @param {any} obj2
- */
-var checkCollision = exports.checkCollision = function checkCollision(obj1, obj2) {
+var menuStates = exports.menuStates = {
+  MAIN: 'main',
+  OPTIONS: 'options',
+  GAME: 'game'
+};
+
+var menuSelections = exports.menuSelections = {
+  GAME: 0,
+  OPTIONS: 1
+};
+
+var difficulty = exports.difficulty = {
+  LOL: 0,
+  EASY: 1,
+  NORMAL: 2,
+  HARD: 3
+};
+
+var menuDirections = exports.menuDirections = {
+  UP: 'up',
+  DOWN: 'down'
+
+  /**
+   * A function to check if two objects are in a collision.
+   * @param {any} obj1
+   * @param {any} obj2
+   */
+};var checkCollision = exports.checkCollision = function checkCollision(obj1, obj2) {
   if (obj1.posY + obj1.hitboxH < obj2.posY || obj1.posY > obj2.posY + obj2.hitboxH || obj1.posX + obj1.hitboxW < obj2.posX || obj1.posX > obj2.posX + obj2.hitboxW) {
     return false;
   } else {
@@ -125,14 +147,25 @@ var addListeners = exports.addListeners = function addListeners(game) {
   document.addEventListener('keydown', function (e) {
     switch (e.keyCode) {
       case 13:
+        // Enter
         (0, _app.toggleMute)(false);
-        game.showTitleScreen = false;
+        game.processMainMenuAction = true;
         break;
       case 80:
+        // P
         game.pauseGame();
         break;
       case 82:
+        // R
         game.resetGame();
+        break;
+      case 87: // Up Arrow
+      case 38:
+        game.processMenuSelection(menuDirections.UP);
+        break;
+      case 83: // Down Arrow
+      case 40:
+        game.processMenuSelection(menuDirections.DOWN);
         break;
       default:
         break;
@@ -3618,13 +3651,15 @@ var Game = function () {
     this.bg = new _background2.default();
     this.ui = new _ui2.default(this);
     this.player = new _player2.default();
-    this.showTitleScreen = true;
+    this.processMainMenuAction = false;
+    this.mmState = Util.menuStates.MAIN;
+    this.mmSelection = Util.menuSelections.GAME;
+    this.difficulty = Util.difficulty.NORMAL;
     this.showGameOverScreen = false;
     this.paused = false;
     this.bullets = [];
     this.enemies = [];
     this.explosions = [];
-    _ship_factory2.default.init(this);
     Util.addListeners(this);
   }
 
@@ -3641,7 +3676,7 @@ var Game = function () {
       then = Date.now();
       startTime = then;
       this.render();
-      _ship_factory2.default.spawnEnemies();
+      //ShipFactory.spawnEnemies();
     }
 
     /**
@@ -3764,6 +3799,69 @@ var Game = function () {
     }
 
     /**
+     * Process a menu selection
+     */
+
+  }, {
+    key: 'processMenuSelection',
+    value: function processMenuSelection(mDirection) {
+      switch (mDirection) {
+        case Util.menuDirections.UP:
+          if (this.mmState == Util.menuStates.MAIN) {
+            if (this.mmSelection != Util.menuSelections.GAME) {
+              this.mmSelection = this.mmSelection - 1;
+            }
+          } else if (this.mmState == Util.menuStates.OPTIONS) {
+            if (this.difficulty != Util.difficulty.EASY) {
+              this.difficulty = this.difficulty - 1;
+            }
+          }
+          break;
+        case Util.menuDirections.DOWN:
+          if (this.mmState == Util.menuStates.MAIN) {
+            if (this.mmSelection != Util.menuSelections.OPTIONS) {
+              this.mmSelection = this.mmSelection + 1;
+            }
+          } else if (this.mmState == Util.menuStates.OPTIONS) {
+            if (this.difficulty != Util.difficulty.HARD) {
+              this.difficulty = this.difficulty + 1;
+            }
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
+    /**
+     * Processes a menu action
+     */
+
+  }, {
+    key: 'processMenuAction',
+    value: function processMenuAction() {
+      switch (this.mmState) {
+        case Util.menuStates.MAIN:
+          if (this.mmSelection == Util.menuSelections.GAME) {
+            _ship_factory2.default.init(this);
+            _ship_factory2.default.spawnEnemies();
+            this.mmState = Util.menuStates.GAME;
+          } else if (this.mmSelection == Util.menuSelections.OPTIONS) {
+            this.mmState = Util.menuStates.OPTIONS;
+          }
+          break;
+        case Util.menuStates.OPTIONS:
+          // Difficulty should be set.  Show main menu now...
+          this.mmState = Util.menuStates.MAIN;
+          break;
+        case Util.menuStates.GAME:
+          break;
+        default:
+          break;
+      }
+    }
+
+    /**
      * The main render loop for the game responsible for each ship and its bullets.
      */
 
@@ -3782,10 +3880,18 @@ var Game = function () {
         if (!this.pause) {
           this.bg.render(this.bgContext);
           this.clearGameCanvas();
-          if (this.showTitleScreen) {
-            this.renderTitleScreen(this.canvasContext);
-          } else {
+          if (this.processMainMenuAction == true) {
+            this.processMenuAction();
+            this.processMainMenuAction = false;
+          }
+
+          if (this.mmState == Util.menuStates.GAME) {
             this.renderGame();
+          } else if (this.mmState == Util.menuStates.OPTIONS) {
+            this.renderOptionsScreen(this.canvasContext);
+          } else {
+            // Continue to render main menu
+            this.renderTitleScreen(this.canvasContext);
           }
         }
 
@@ -3865,7 +3971,42 @@ var Game = function () {
       ctx.fillText('PlasmaForce', 80, 200);
       ctx.fillStyle = 'white';
       ctx.font = '30px arcadeclassicregular';
-      ctx.fillText('press enter to start', 70, 350);
+      if (this.mmSelection == Util.menuSelections.GAME) {
+        ctx.fillText('Engage<', 165, 350);
+        ctx.fillText('Options', 165, 400);
+      } else {
+        ctx.fillText('Engage', 165, 350);
+        ctx.fillText('Options<', 165, 400);
+      }
+    }
+
+    /**
+     * Shows options for specifying difficulty setting.
+     * @param {any} ctx
+     */
+
+  }, {
+    key: 'renderOptionsScreen',
+    value: function renderOptionsScreen(ctx) {
+      this.clearGameCanvas();
+      ctx.fillStyle = 'white';
+      ctx.font = '50px arcadeclassicregular';
+      ctx.fillText('Difficulty', 75, 200);
+      ctx.fillStyle = 'white';
+      ctx.font = '30px arcadeclassicregular';
+      if (this.difficulty == Util.difficulty.EASY) {
+        ctx.fillText('Easy<', 75, 300);
+        ctx.fillText('Normal', 75, 350);
+        ctx.fillText('Hard', 75, 400);
+      } else if (this.difficulty == Util.difficulty.NORMAL) {
+        ctx.fillText('Easy', 75, 300);
+        ctx.fillText('Normal<', 75, 350);
+        ctx.fillText('Hard', 75, 400);
+      } else {
+        ctx.fillText('Easy', 75, 300);
+        ctx.fillText('Normal', 75, 350);
+        ctx.fillText('Hard<', 75, 400);
+      }
     }
 
     /**
@@ -4028,24 +4169,24 @@ var ShipFactory = {
 
   // Adds a Grunt ship to the game.
   addGrunt: function addGrunt() {
-    this.game.enemies.push(new Enemies.GruntShip({ bullets: this.game.bullets }));
+    this.game.enemies.push(new Enemies.GruntShip({ bullets: this.game.bullets }, this.game.difficulty));
   },
   // Adds a Saucer ship to the game
   addSaucer: function addSaucer() {
-    this.game.enemies.push(new Enemies.SaucerShip({ bullets: this.game.bullets }));
+    this.game.enemies.push(new Enemies.SaucerShip({ bullets: this.game.bullets }, this.game.difficulty));
   },
   // Adds a Suicider ship to the game.
   addSuicider: function addSuicider() {
-    this.game.enemies.push(new Enemies.Suicider({ bullets: this.game.bullets }));
+    this.game.enemies.push(new Enemies.Suicider({ bullets: this.game.bullets }, this.game.difficulty));
   },
   // Adds the two types of Saucer ships to the game.
   addTwoSaucers: function addTwoSaucers() {
-    this.game.enemies.push(new Enemies.SaucerShip({ bullets: this.game.bullets, posX: 20 }));
-    this.game.enemies.push(new Enemies.SaucerShipV2({ bullets: this.game.bullets, posX: 320, posY: -400 }));
+    this.game.enemies.push(new Enemies.SaucerShip({ bullets: this.game.bullets, posX: 20 }, this.game.difficulty));
+    this.game.enemies.push(new Enemies.SaucerShipV2({ bullets: this.game.bullets, posX: 320, posY: -400 }, this.game.difficulty));
   },
   // Adds an Oculus ship to the game.
   addOculus: function addOculus() {
-    this.game.enemies.push(new Enemies.OculusShip({ bullets: this.game.bullets }));
+    this.game.enemies.push(new Enemies.OculusShip({ bullets: this.game.bullets }, this.game.difficulty));
   },
   // Generates a random wave of enemies.
   randomWave: function randomWave() {
@@ -4133,7 +4274,7 @@ var Suicider = function (_BaseShip) {
    * Initializes a new instance of the Suicider object.
    * @param {any} props
    */
-  function Suicider(props) {
+  function Suicider(props, difficulty) {
     _classCallCheck(this, Suicider);
 
     var _this = _possibleConstructorReturn(this, (Suicider.__proto__ || Object.getPrototypeOf(Suicider)).call(this, props));
@@ -4145,6 +4286,7 @@ var Suicider = function (_BaseShip) {
     _this.hitboxW = 16;
     _this.hitboxH = 38;
     _this.sprites = [];
+    _this.difficulty = difficulty;
     for (var i = 0; i <= 3; i++) {
       _this.sprites.push([_this.sprite, i * 16, 0, 16, 38]);
     }
@@ -4220,9 +4362,13 @@ var _bullet = __webpack_require__(3);
 
 var _util = __webpack_require__(0);
 
+var Util = _interopRequireWildcard(_util);
+
 var _sound_fx = __webpack_require__(1);
 
 var _sound_fx2 = _interopRequireDefault(_sound_fx);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4244,10 +4390,10 @@ var GruntShip = function (_BaseShip) {
    * Initializes a new instance of the GruntShip object.
    * @param {any} props
    */
-  function GruntShip(props) {
+  function GruntShip(props, difficulty) {
     _classCallCheck(this, GruntShip);
 
-    props = Object.assign({ speedX: 2, posY: -100, posX: Math.abs(Math.floor(Math.random() * _util.canvasWidth) - 50) }, props);
+    props = Object.assign({ speedX: 2, posY: -100, posX: Math.abs(Math.floor(Math.random() * Util.canvasWidth) - 50) }, props);
 
     var _this = _possibleConstructorReturn(this, (GruntShip.__proto__ || Object.getPrototypeOf(GruntShip)).call(this, props));
 
@@ -4258,6 +4404,7 @@ var GruntShip = function (_BaseShip) {
     _this.hitboxW = 48;
     _this.hitboxH = 72;
     _this.sprites = [];
+    _this.difficulty = difficulty;
     for (var i = 0; i <= 3; i++) {
       _this.sprites.push([_this.sprite, i * 32, 0, 32, 48]);
     }
@@ -4281,7 +4428,7 @@ var GruntShip = function (_BaseShip) {
         if (this.tickCount % 40 === 0 && Math.random() * 2 > 1) {
           this.fireBullet();
         }
-        if (this.posX + this.speedX >= 0 && this.posX + this.speedX <= _util.canvasWidth - this.hitboxW) {
+        if (this.posX + this.speedX >= 0 && this.posX + this.speedX <= Util.canvasWidth - this.hitboxW) {
           this.posX += this.speedX;
         } else {
           this.antiBumpTechnology();
@@ -4306,7 +4453,15 @@ var GruntShip = function (_BaseShip) {
       var bulletData = Object.assign({ speedX: 0, speedY: 5 }, posObj);
       var bulletData2 = Object.assign({ speedX: -3, speedY: 4 }, posObj);
       var bulletData3 = Object.assign({ speedX: 3, speedY: 4 }, posObj);
-      this.bullets.push(new _bullet.BasicEnemyBullet(bulletData), new _bullet.BasicEnemyBullet(bulletData2), new _bullet.BasicEnemyBullet(bulletData3));
+      var bulletData4 = Object.assign({ speedX: -1, speedY: 4 }, posObj);
+      var bulletData5 = Object.assign({ speedX: 1, speedY: 4 }, posObj);
+      if (this.difficulty == Util.difficulty.EASY) {
+        this.bullets.push(new _bullet.BasicEnemyBullet(bulletData));
+      } else if (this.difficulty == Util.difficulty.NORMAL) {
+        this.bullets.push(new _bullet.BasicEnemyBullet(bulletData), new _bullet.BasicEnemyBullet(bulletData2), new _bullet.BasicEnemyBullet(bulletData3));
+      } else {
+        this.bullets.push(new _bullet.BasicEnemyBullet(bulletData), new _bullet.BasicEnemyBullet(bulletData2), new _bullet.BasicEnemyBullet(bulletData3), new _bullet.BasicEnemyBullet(bulletData4), new _bullet.BasicEnemyBullet(bulletData5));
+      }
     }
 
     /**
@@ -4391,9 +4546,13 @@ var _bullet = __webpack_require__(3);
 
 var _util = __webpack_require__(0);
 
+var Util = _interopRequireWildcard(_util);
+
 var _sound_fx = __webpack_require__(1);
 
 var _sound_fx2 = _interopRequireDefault(_sound_fx);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4415,10 +4574,10 @@ var SaucerShip = function (_BaseShip) {
    * Initializes a new instance of the SaucerShip object.
    * @param {any} props
    */
-  function SaucerShip(props) {
+  function SaucerShip(props, difficulty) {
     _classCallCheck(this, SaucerShip);
 
-    props = Object.assign({ speedY: 3, posY: -100, posX: Math.floor(_util.canvasWidth / 2 - 60) }, props);
+    props = Object.assign({ speedY: 3, posY: -100, posX: Math.floor(Util.canvasWidth / 2 - 60) }, props);
 
     var _this = _possibleConstructorReturn(this, (SaucerShip.__proto__ || Object.getPrototypeOf(SaucerShip)).call(this, props));
 
@@ -4428,13 +4587,21 @@ var SaucerShip = function (_BaseShip) {
     _this.hitboxW = 96;
     _this.hitboxH = 90;
     _this.sprites = [];
+    _this.difficulty = difficulty;
     for (var i = 0; i <= 6; i++) {
       _this.sprites.push([_this.sprite, i * 96, 0, 96, 90]);
     }
     for (var _i = 6; _i >= 0; _i--) {
       _this.sprites.push([_this.sprite, _i * 96, 0, 96, 90]);
     }
-    _this.BULLET_VECTORS = [[0, 5], [0, -5], [5, 0], [-5, 0], [-2, 4], [2, 4], [-2, -4], [2, -4], [4, 2], [4, -2], [-4, -2], [-4, 2]];
+
+    if (_this.difficulty == Util.difficulty.EASY) {
+      _this.BULLET_VECTORS = [[-2, 4], [2, 4], [-2, -4], [2, -4], [4, 2], [4, -2], [-4, -2], [-4, 2]];
+    } else if (_this.difficulty == Util.difficulty.NORMAL) {
+      _this.BULLET_VECTORS = [[0, 5], [0, -5], [5, 0], [-5, 0], [-2, 4], [2, 4], [-2, -4], [2, -4], [4, 2], [4, -2], [-4, -2], [-4, 2]];
+    } else {
+      _this.BULLET_VECTORS = [[0, 5], [0, -5], [5, 0], [-5, 0], [-2, 4], [2, 4], [-2, -4], [2, -4], [4, 2], [4, -2], [-4, -2], [-4, 2], [3, 2], [3, -2], [-3, -2], [-3, 2]];
+    }
     return _this;
   }
 
@@ -4453,7 +4620,7 @@ var SaucerShip = function (_BaseShip) {
         this.posY += 2;
       } else if (this.tickCount > 65 && this.tickCount < 100) {
         return false;
-      } else if (this.posY + this.speedY >= 0 && this.posY + this.speedY <= _util.canvasHeight - this.hitboxH) {
+      } else if (this.posY + this.speedY >= 0 && this.posY + this.speedY <= Util.canvasHeight - this.hitboxH) {
         this.posY += this.speedY;
       } else {
         this.antiBumpTechnology();
@@ -4538,9 +4705,13 @@ var _bullet = __webpack_require__(3);
 
 var _util = __webpack_require__(0);
 
+var Util = _interopRequireWildcard(_util);
+
 var _sound_fx = __webpack_require__(1);
 
 var _sound_fx2 = _interopRequireDefault(_sound_fx);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4562,10 +4733,10 @@ var SaucerShipV2 = function (_BaseShip) {
    * Initializes a new instance of the SaucerShipV2 object.
    * @param {any} props
    */
-  function SaucerShipV2(props) {
+  function SaucerShipV2(props, difficulty) {
     _classCallCheck(this, SaucerShipV2);
 
-    props = Object.assign({ speedY: 3, posY: -100, posX: Math.floor(_util.canvasWidth / 2 - 60) }, props);
+    props = Object.assign({ speedY: 3, posY: -100, posX: Math.floor(Util.canvasWidth / 2 - 60) }, props);
 
     var _this = _possibleConstructorReturn(this, (SaucerShipV2.__proto__ || Object.getPrototypeOf(SaucerShipV2)).call(this, props));
 
@@ -4575,13 +4746,20 @@ var SaucerShipV2 = function (_BaseShip) {
     _this.hitboxW = 96;
     _this.hitboxH = 90;
     _this.sprites = [];
+    _this.difficulty = difficulty;
     for (var i = 0; i <= 6; i++) {
       _this.sprites.push([_this.sprite, i * 96, 0, 96, 90]);
     }
     for (var _i = 6; _i >= 0; _i--) {
       _this.sprites.push([_this.sprite, _i * 96, 0, 96, 90]);
     }
-    _this.BULLET_VECTORS = [[0, 5], [0, -5], [5, 0], [-5, 0], [-2, 4], [2, 4], [-2, -4], [2, -4], [4, 2], [4, -2], [-4, -2], [-4, 2]];
+    if (_this.difficulty == Util.difficulty.EASY) {
+      _this.BULLET_VECTORS = [[-2, 4], [2, 4], [-2, -4], [2, -4], [4, 2], [4, -2], [-4, -2], [-4, 2]];
+    } else if (_this.difficulty == Util.difficulty.NORMAL) {
+      _this.BULLET_VECTORS = [[0, 5], [0, -5], [5, 0], [-5, 0], [-2, 4], [2, 4], [-2, -4], [2, -4], [4, 2], [4, -2], [-4, -2], [-4, 2]];
+    } else {
+      _this.BULLET_VECTORS = [[0, 5], [0, -5], [5, 0], [-5, 0], [-2, 4], [2, 4], [-2, -4], [2, -4], [4, 2], [4, -2], [-4, -2], [-4, 2], [3, 2], [3, -2], [-3, -2], [-3, 2]];
+    }
     return _this;
   }
 
@@ -4600,7 +4778,7 @@ var SaucerShipV2 = function (_BaseShip) {
         this.posY += 2;
       } else if (this.tickCount > 65 && this.tickCount < 100) {
         return false;
-      } else if (this.posY + this.speedY >= 0 && this.posY + this.speedY <= _util.canvasHeight - this.hitboxH) {
+      } else if (this.posY + this.speedY >= 0 && this.posY + this.speedY <= Util.canvasHeight - this.hitboxH) {
         this.posY += this.speedY;
       } else {
         this.antiBumpTechnology();
@@ -4684,9 +4862,13 @@ var _bullet = __webpack_require__(3);
 
 var _util = __webpack_require__(0);
 
+var Util = _interopRequireWildcard(_util);
+
 var _sound_fx = __webpack_require__(1);
 
 var _sound_fx2 = _interopRequireDefault(_sound_fx);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -4708,7 +4890,7 @@ var OculusShip = function (_BaseShip) {
    * Initializes a new instance of the OculusShip object.
    * @param {any} props
    */
-  function OculusShip(props) {
+  function OculusShip(props, difficulty) {
     _classCallCheck(this, OculusShip);
 
     props = Object.assign({ speedX: 3, speedY: 3, posY: -100, posX: Math.floor(Math.random() * 350) }, props);
@@ -4721,13 +4903,20 @@ var OculusShip = function (_BaseShip) {
     _this.hitboxW = 72;
     _this.hitboxH = 120;
     _this.sprites = [];
+    _this.difficulty = difficulty;
     for (var i = 0; i <= 3; i++) {
       _this.sprites.push([_this.sprite, i * 48, 0, 48, 80]);
     }
     for (var _i = 3; _i >= 0; _i--) {
       _this.sprites.push([_this.sprite, _i * 48, 0, 48, 80]);
     }
-    _this.BULLET_VECTORS = [[0, 5], [0, -5], [5, 0], [-5, 0], [-2, 4], [2, 4], [-2, -4], [2, -4], [4, 2], [4, -2], [-4, -2], [-4, 2]];
+    if (_this.difficulty == Util.difficulty.EASY) {
+      _this.BULLET_VECTORS = [[-2, 4], [2, 4], [-2, -4], [2, -4], [4, 2], [4, -2]];
+    } else if (_this.difficulty == Util.difficulty.NORMAL) {
+      _this.BULLET_VECTORS = [[0, 5], [0, -5], [5, 0], [-5, 0], [-2, 4], [2, 4], [-2, -4], [2, -4], [4, 2], [4, -2], [-4, -2], [-4, 2]];
+    } else {
+      _this.BULLET_VECTORS = [[0, 5], [0, -5], [5, 0], [-5, 0], [-2, 4], [2, 4], [-2, -4], [2, -4], [4, 2], [4, -2], [-4, -2], [-4, 2], [3, 2], [3, -2], [-3, -2], [-3, 2], [-1, -2], [-1, 2]];
+    }
     return _this;
   }
 
@@ -4742,7 +4931,11 @@ var OculusShip = function (_BaseShip) {
       if (this.posY < 0) {
         this.posY += 2;
       } else if (this.tickCount >= 24 && this.tickCount < 60) {
-        if (this.tickCount % 3 === 0) {
+        if (this.difficulty == Util.difficulty.EASY && this.tickCount % 6 === 0) {
+          this.fireBullet();
+        } else if (this.difficulty == Util.difficulty.NORMAL && this.tickCount % 3 === 0) {
+          this.fireBullet();
+        } else if (this.difficulty == Util.difficulty.HARD && this.tickCount % 2 === 0) {
           this.fireBullet();
         }
       } else {
@@ -4751,7 +4944,7 @@ var OculusShip = function (_BaseShip) {
         } else {
           this.speedY *= -1;
         }
-        if (this.posX + this.speedX >= 0 && this.posX + this.speedX <= _util.canvasWidth - this.hitboxW) {
+        if (this.posX + this.speedX >= 0 && this.posX + this.speedX <= Util.canvasWidth - this.hitboxW) {
           this.posX += this.speedX;
         } else {
           this.speedX *= -1;
@@ -4772,9 +4965,19 @@ var OculusShip = function (_BaseShip) {
         posX: this.posX + Math.floor(this.hitboxW / 2) - 10,
         posY: this.posY + Math.floor(this.hitboxH / 2) - 10
       };
-      var vector = this.BULLET_VECTORS[(this.tickCount - 24) / 3];
-      var bulletData = Object.assign({ speedX: vector[0], speedY: vector[1] }, posObj);
-      this.bullets.push(new _bullet.BasicEnemyBullet(bulletData));
+      if (this.difficulty == Util.difficulty.EASY) {
+        var vector = this.BULLET_VECTORS[(this.tickCount - 24) / 6];
+        var bulletData = Object.assign({ speedX: vector[0], speedY: vector[1] }, posObj);
+        this.bullets.push(new _bullet.BasicEnemyBullet(bulletData));
+      } else if (this.difficulty == Util.difficulty.NORMAL) {
+        var _vector = this.BULLET_VECTORS[(this.tickCount - 24) / 3];
+        var _bulletData = Object.assign({ speedX: _vector[0], speedY: _vector[1] }, posObj);
+        this.bullets.push(new _bullet.BasicEnemyBullet(_bulletData));
+      } else {
+        var _vector2 = this.BULLET_VECTORS[(this.tickCount - 24) / 2];
+        var _bulletData2 = Object.assign({ speedX: _vector2[0], speedY: _vector2[1] }, posObj);
+        this.bullets.push(new _bullet.BasicEnemyBullet(_bulletData2));
+      }
     }
 
     /**
