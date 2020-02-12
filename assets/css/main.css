@@ -1,74 +1,76 @@
 html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  /*width: 100%;*/
-  font-family: 'arcadeclassicregular';
-  color: #ff9e4f;
-  word-spacing: 5px;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    /*width: 100%;*/
+    font-family: 'arcadeclassicregular';
+    color: #ff9e4f;
+    word-spacing: 5px;
 }
 
 a {
-  display: inline-block;
-  color: white;
-  margin-top: .5em;
+    display: inline-block;
+    color: white;
+    margin-top: .5em;
 }
 
 body {
-  background-color: black;
+    background-color: black;
 }
 
 canvas {
-  display: block;
-  position: absolute;
-  top: 0;
-  height: 100%;
+    display: block;
+    position: absolute;
+    top: 0;
+    height: 100%;
 }
 
 .main-container {
-  position: relative;
-  margin-left: -220px;
-  height: 100%;
-  display: flex;
-  justify-content: center;
+    position: relative;
+    height: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 .canvas-container {
-  display: inline;
-  position: relative;
-  height: 100%;
+    display: inline;
+    position: relative;
+    height: 100%;
 }
 
 .text-box {
-  font-size: 1.5em;
-  width: fit-content;
-  text-align: center;
-  margin-left: 2em;
-  margin-right: 2em;
+    font-size: 1.5em;
+    width: fit-content;
+    text-align: center;
+    margin-left: 2em;
+    margin-right: 2em;
 }
-  .title-text {
+
+.title-text {
     display: inline-block;
     font-size: 1.5em;
     margin-top: 2em;
     margin-bottom: .7em;
     border-bottom: 3px double #ff9e4f;
-  }
-  .title-lg {
+}
+
+.title-lg {
     font-size: 1.4em;
-  }
-  .credits {
+}
+
+.credits {
     display: inline-block;
     margin-top: .5em;
     font-size: .8em;
-  }
+}
 
 #background-canvas {
-  position: relative;
+    position: relative;
 }
 
 #mute-control {
-  display: inline-block;
-  cursor: pointer;
-  padding: .5em;
-  margin-top: .5em;
+    display: inline-block;
+    cursor: pointer;
+    padding: .5em;
+    margin-top: .5em;
 }

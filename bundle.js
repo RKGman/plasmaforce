@@ -73,14 +73,14 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.addListeners = exports.formatScore = exports.checkCollision = exports.menuDirections = exports.difficulty = exports.menuSelections = exports.menuStates = exports.canvasWidth = exports.canvasHeight = undefined;
+exports.addListeners = exports.formatScore = exports.checkCollision = exports.genDirections = exports.menuDirections = exports.difficulty = exports.menuSelections = exports.menuStates = exports.canvasWidth = exports.canvasHeight = undefined;
 
 var _app = __webpack_require__(6);
 
 // Some global utility functions and variables necessary for the game.
 
-var canvasHeight = exports.canvasHeight = 700;
-var canvasWidth = exports.canvasWidth = 450;
+var canvasHeight = exports.canvasHeight = 640;
+var canvasWidth = exports.canvasWidth = 360;
 
 var menuStates = exports.menuStates = {
   MAIN: 'main',
@@ -103,6 +103,13 @@ var difficulty = exports.difficulty = {
 var menuDirections = exports.menuDirections = {
   UP: 'up',
   DOWN: 'down'
+};
+
+var genDirections = exports.genDirections = {
+  UP: 0,
+  RIGHT: 1,
+  DOWN: 2,
+  LEFT: 3
 
   /**
    * A function to check if two objects are in a collision.
@@ -652,10 +659,10 @@ var toggleMute = exports.toggleMute = function toggleMute() {
 };
 
 // Add event handler for muting.
-settings.muteBtn.addEventListener('click', function () {
-  settings.muted = !settings.muted;
-  toggleMute();
-});
+//settings.muteBtn.addEventListener('click', () => {
+//  settings.muted = !settings.muted;
+//  toggleMute();
+//})
 
 window.localStorage.hiScore = window.localStorage.hiScore || 0;
 
@@ -3968,15 +3975,16 @@ var Game = function () {
     value: function renderTitleScreen(ctx) {
       ctx.fillStyle = '#ff9e4f';
       ctx.font = '48px arcadeclassicregular';
-      ctx.fillText('PlasmaForce', 80, 200);
+      ctx.fillText('PlasmaForce', 40, 200);
+      ctx.fillText('V2', 160, 240);
       ctx.fillStyle = 'white';
       ctx.font = '30px arcadeclassicregular';
       if (this.mmSelection == Util.menuSelections.GAME) {
-        ctx.fillText('Engage<', 165, 350);
-        ctx.fillText('Options', 165, 400);
+        ctx.fillText('Engage<', 125, 350);
+        ctx.fillText('Options', 125, 400);
       } else {
-        ctx.fillText('Engage', 165, 350);
-        ctx.fillText('Options<', 165, 400);
+        ctx.fillText('Engage', 125, 350);
+        ctx.fillText('Options<', 125, 400);
       }
     }
 
@@ -3991,7 +3999,7 @@ var Game = function () {
       this.clearGameCanvas();
       ctx.fillStyle = 'white';
       ctx.font = '50px arcadeclassicregular';
-      ctx.fillText('Difficulty', 75, 200);
+      ctx.fillText('Difficulty', 55, 200);
       ctx.fillStyle = 'white';
       ctx.font = '30px arcadeclassicregular';
       if (this.difficulty == Util.difficulty.EASY) {
@@ -4020,9 +4028,9 @@ var Game = function () {
       this.player = {};
       ctx.font = '48px arcadeclassicregular';
       ctx.fillStyle = 'white';
-      ctx.fillText('GAME OVER', 110, 200);
+      ctx.fillText('GAME OVER', 90, 200);
       ctx.font = '30px arcadeclassicregular';
-      ctx.fillText('press r to restart', 90, 350);
+      ctx.fillText('press r to restart', 60, 350);
     }
   }]);
 
@@ -5135,15 +5143,15 @@ var UI = function () {
       if (this.tick % 4 === 0) {
         ctx.clearRect(0, 0, Util.canvasWidth, 50);
         ctx.fillStyle = 'white';
-        ctx.font = '24px arcadeclassicregular';
-        ctx.fillText('SCORE: ' + Util.formatScore(this.scores.score), 140, 30);
-        ctx.fillText('HI: ' + Util.formatScore(this.scores.hiScore), 320, 30);
+        ctx.font = '18px arcadeclassicregular';
+        ctx.fillText('SCORE: ' + Util.formatScore(this.scores.score), 120, 30);
+        ctx.fillText('HI: ' + Util.formatScore(this.scores.hiScore), 260, 30);
 
         ctx.fillText('HP', 10, 30);
         ctx.strokeStyle = 'white';
-        ctx.strokeRect(45, 14, 81, 18);
+        ctx.strokeRect(35, 14, 81, 18);
         ctx.fillStyle = 'red';
-        ctx.fillRect(45, 15, this.game.player.hp * 8, 16);
+        ctx.fillRect(35, 15, this.game.player.hp * 8, 16);
 
         if (this.scores.score > this.scores.hiScore) {
           window.localStorage.hiScore = this.scores.score;
@@ -5233,6 +5241,9 @@ var Player = function (_MovingObject) {
     _this.hitboxH = 46;
     _this.iframe = 0;
     _this.playerController();
+    _this.useHover = false;
+    _this.hoverX = 0;
+    _this.hoverY = 0;
     return _this;
   }
 
@@ -5343,9 +5354,17 @@ var Player = function (_MovingObject) {
         this.deleteBullets();
       }
 
+      if (this.useHover == true) {
+        this.convertHoverToAction();
+      }
+
       this.calculateInertia();
       this.move();
       ctx.drawImage.apply(ctx, _toConsumableArray(this.getSprite()));
+
+      if (this.useHover == true) {
+        this.resetActions();
+      }
     }
 
     /**
@@ -5371,6 +5390,49 @@ var Player = function (_MovingObject) {
         return rightSprite[frame];
       }
     }
+  }, {
+    key: 'resetActions',
+    value: function resetActions() {
+      this.actions.moveUp = false;
+      this.actions.moveRight = false;
+      this.actions.moveDown = false;
+      this.actions.moveLeft = false;
+    }
+  }, {
+    key: 'convertHoverToAction',
+    value: function convertHoverToAction() {
+      if (this.hoverX < this.posX) {
+        this.actions.moveLeft = true;
+        //this.actions.moveRight = false;
+      }
+      if (this.hoverX > this.posX) {
+        this.actions.moveRight = true;
+        //this.actions.moveLeft = false;
+      }
+      if (this.hoverY > this.posY) {
+        this.actions.moveDown = true;
+        //this.actions.moveUp = false;
+      }
+      if (this.hoverY < this.posY) {
+        this.actions.moveUp = true;
+        //this.actions.moveDown = false;
+      }
+      if (this.hoverX == this.posX) {
+        this.actions.moveRight = false;
+        //this.actions.moveLeft = false;
+      }
+      if (this.hoverY == this.posY) {
+        this.actions.moveDown = false;
+        //this.actions.moveUp = false;
+      }
+    }
+  }, {
+    key: 'setHoverCoordinates',
+    value: function setHoverCoordinates(eclientX, eclientY) {
+      var rect = document.getElementById('c-container').getBoundingClientRect();
+      this.hoverX = Math.floor((eclientX - rect.left) / 2);
+      this.hoverY = Math.floor((eclientY - rect.top) / 2);
+    }
 
     /**
      * Defines the controller for detecting player inputs for controlling the ship.  
@@ -5385,6 +5447,7 @@ var Player = function (_MovingObject) {
       // KEYCODES: 37: left, 38: up, 39: right, 40: down, 32: space
       // Specify flags set on keydown event.
       document.addEventListener('keydown', function (e) {
+        _this2.useHover = false;
         switch (e.keyCode) {
           case 65:
           case 37:
@@ -5436,6 +5499,17 @@ var Player = function (_MovingObject) {
           default:
             break;
         }
+      });
+
+      document.getElementById('c-container').addEventListener('mousemove', function (e) {
+        // Check position of mouse in relationship to ship.
+        _this2.useHover = true;
+        var translation = _this2.setHoverCoordinates(e.clientX, e.clientY);
+      });
+      document.addEventListener('touchmove', function (e) {
+        // Check position of touch in relationship to ship.
+        _this2.useHover = true;
+        var translation = _this2.setHoverCoordinates(e.clientX, e.clientY);
       });
     }
   }]);
