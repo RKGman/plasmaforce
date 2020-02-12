@@ -4144,7 +4144,6 @@ var ShipFactory = {
   spawnEnemies: function spawnEnemies() {
     if (this.scores.score < 45) {
       this.addGrunt();
-      this.addSuicider();
     } else if (this.scores.score < 145) {
       this.addGrunt();
       this.addGrunt();
@@ -4190,7 +4189,7 @@ var ShipFactory = {
   // Adds the two types of Saucer ships to the game.
   addTwoSaucers: function addTwoSaucers() {
     this.game.enemies.push(new Enemies.SaucerShip({ bullets: this.game.bullets, posX: 20 }, this.game.difficulty));
-    this.game.enemies.push(new Enemies.SaucerShipV2({ bullets: this.game.bullets, posX: 320, posY: -400 }, this.game.difficulty));
+    this.game.enemies.push(new Enemies.SaucerShipV2({ bullets: this.game.bullets, posX: 220, posY: -400 }, this.game.difficulty));
   },
   // Adds an Oculus ship to the game.
   addOculus: function addOculus() {
@@ -5205,9 +5204,12 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var HOVER_SCALE = 1.0;
+
 /**
  * Defines the Player object containing the ship functionality and its actions inheriting from MovingObject.
  */
+
 var Player = function (_MovingObject) {
   _inherits(Player, _MovingObject);
 
@@ -5390,6 +5392,11 @@ var Player = function (_MovingObject) {
         return rightSprite[frame];
       }
     }
+
+    /**
+     * Resets the player's actions... 
+     */
+
   }, {
     key: 'resetActions',
     value: function resetActions() {
@@ -5398,40 +5405,68 @@ var Player = function (_MovingObject) {
       this.actions.moveDown = false;
       this.actions.moveLeft = false;
     }
+
+    /**
+     * Sets appropriate action for changing ship's position from hover action...
+     */
+
   }, {
     key: 'convertHoverToAction',
     value: function convertHoverToAction() {
-      if (this.hoverX < this.posX) {
+      // Account for scaling of X as screen changes...
+      var shipsX = Math.floor(this.posX * (document.getElementById('c-container').offsetWidth / _util.canvasWidth));
+      var shipsY = this.posY;
+
+      if (this.hoverX < shipsX) {
         this.actions.moveLeft = true;
         //this.actions.moveRight = false;
       }
-      if (this.hoverX > this.posX) {
+      if (this.hoverX > shipsX) {
         this.actions.moveRight = true;
         //this.actions.moveLeft = false;
       }
-      if (this.hoverY > this.posY) {
+      if (this.hoverY > shipsY) {
         this.actions.moveDown = true;
         //this.actions.moveUp = false;
       }
-      if (this.hoverY < this.posY) {
+      if (this.hoverY < shipsY) {
         this.actions.moveUp = true;
         //this.actions.moveDown = false;
       }
-      if (this.hoverX == this.posX) {
+      if (this.hoverX == shipsX) {
         this.actions.moveRight = false;
         //this.actions.moveLeft = false;
       }
-      if (this.hoverY == this.posY) {
+      if (this.hoverY == shipsY) {
         this.actions.moveDown = false;
         //this.actions.moveUp = false;
       }
     }
+
+    /**
+     * Set the hover coordinates from the hover events...
+     * @param {any} eclientX
+     * @param {any} eclientY
+     */
+
   }, {
     key: 'setHoverCoordinates',
     value: function setHoverCoordinates(eclientX, eclientY) {
       var rect = document.getElementById('c-container').getBoundingClientRect();
-      this.hoverX = Math.floor((eclientX - rect.left) / 2);
-      this.hoverY = Math.floor((eclientY - rect.top) / 2);
+      // Account of scale of Y as screen grows
+      var scaleFactorY = this.getHoverScaleY();
+      this.hoverX = Math.floor(eclientX - rect.left);
+      this.hoverY = Math.floor((eclientY - rect.top) * scaleFactorY);
+    }
+
+    /**
+     * Return the scaling of Y coordinates for the hover actions...
+     */
+
+  }, {
+    key: 'getHoverScaleY',
+    value: function getHoverScaleY() {
+      return _util.canvasHeight / document.getElementById('m-container').offsetHeight;
     }
 
     /**
@@ -5501,15 +5536,31 @@ var Player = function (_MovingObject) {
         }
       });
 
+      // Add event listener for mouse move in canvas...
       document.getElementById('c-container').addEventListener('mousemove', function (e) {
         // Check position of mouse in relationship to ship.
         _this2.useHover = true;
-        var translation = _this2.setHoverCoordinates(e.clientX, e.clientY);
+        _this2.setHoverCoordinates(e.clientX, e.clientY);
       });
+      // Add event for mouseclick to fire
+      document.getElementById('c-container').addEventListener('mousedown', function (e) {
+        _this2.actions.fireBullet = true;
+      });
+      // Add event to stop firing when mouseclick is finished
+      document.getElementById('c-container').addEventListener('mouseup', function (e) {
+        _this2.actions.fireBullet = false;
+      });
+      // Add event listener for tuch move in canvas
       document.addEventListener('touchmove', function (e) {
         // Check position of touch in relationship to ship.
         _this2.useHover = true;
-        var translation = _this2.setHoverCoordinates(e.clientX, e.clientY);
+        _this2.actions.fireBullet = true;
+        _this2.setHoverCoordinates(e.clientX, e.clientY);
+      });
+      // Add event to stop firing when finger is release
+      document.addEventListener('touchend', function (e) {
+        _this2.useHover = false;
+        _this2.actions.fireBullet = false;
       });
     }
   }]);
