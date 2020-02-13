@@ -1,20 +1,19 @@
-# PlasmaForce
+# PlasmaPulse
 
-Welcome to **PlasmaForce**!
-[live link](https://ken-zhong.github.io/plasmaforce/)
+Welcome to **PlasmaPulse**!
+[live link](http://rknako.com/wp-content/js/pfv2/index.html)
 
 <div style="text-align: center">
   <img src="./docs/plasmaforce_gif.gif" />
 </div>
 <br>
 
-PlasmaForce is a 2d side-scrolling space shooter (also known as a 'bullet hell') game.
+PlasmaPulse is a 2d side-scrolling space shooter (also known as a 'bullet hell') game.
 
 ### Features
 - Multiple enemy types, and difficulty progression from easy to chaotic the longer the player stays alive.
-- Local high score storage. Eventually, I would like to add a Node/Express backend for global high scores.
 - Randomly generated enemy waves after a few fixed waves.
-- Audio mute/unmute; starts off muted.
+- Local high score storage. 
 - Smooth 60 fps gameplay on relatively low end computer hardware. Some performance tweaks:
   - Caching sprites and images in an ES6 singleton module.
   - Using Howler.js audio library to cache sound effects.
@@ -28,7 +27,7 @@ PlasmaForce is a 2d side-scrolling space shooter (also known as a 'bullet hell')
 
 
 ##### Credits:
-Code: Ken Zhong
+Code: RK, Ken Zhong
 
 Assets:
 - Background image: Satur9, https://opengameart.org/content/space-background-01
