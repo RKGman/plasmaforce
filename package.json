@@ -1,5 +1,5 @@
 {
-  "name": "plasma-force",
+  "name": "plasma-pulse",
   "version": "1.0.0",
   "description": "A space shooter game built with JavaScript and HTML5",
   "main": "app.js",
@@ -13,7 +13,7 @@
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.1",
     "howler": "^2.0.5",
-    "webpack-cli": "^3.8.1"
+    "webpack-cli": "^3.3.11"
   },
   "devDependencies": {
     "webpack": "^4.41.6"

@@ -1,10 +1,10 @@
-## Plasmaforce
+## PlasmaPulse
 
 #### Background
-PlasmaForce is a 2d space shooter game inspired by classics such as Life Force and Tyrian.
+PlasmaPulse is a 2d space shooter game inspired by classics such as Life Force and Tyrian.
 
 #### Functionality & MVP
-PlasmaForce will have the following features:
+PlasmaPulse will have the following features:
 - Players are able to control a space ship
 - Players can fire bullets that destroy enemy ships.
 - There will be enemy ships that have a basic AI and can fire bullets that destroy the player's ship.
@@ -17,7 +17,7 @@ This project will utilize the following technologies:
 - A rendering library such as `Phaser.js` or `Easel.js`
 
 #### Layout / UI
-PlasmaForce is a vertical shooter. The canvas element will be centered on the page, and instructions with controls will be on the left side of the canvas element.
+PlasmaPulse is a vertical shooter. The canvas element will be centered on the page, and instructions with controls will be on the left side of the canvas element.
 
 #### Timeline
 
